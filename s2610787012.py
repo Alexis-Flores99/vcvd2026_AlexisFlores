@@ -108,7 +108,6 @@ coefficients = pd.read_csv(r".\tyre_coefficients.csv")
 # Vehicle and tyre parameters
 load = (args.vehicle_mass * g)/4000
 mu = args.friction
-G_CAMBER = 0
 
 # Simulation parameters
 kappa = np.linspace(0, 1, 1000)  # Longitudinal slip from 0% to 100%
