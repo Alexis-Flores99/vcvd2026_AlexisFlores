@@ -84,3 +84,79 @@ def calculate_fx(k, fz):
     fx = -(sigma_x / sigma)*mu * f_x0
     return fx
 
+def calculate_fy(k,fz):
+    """
+    Calculate longitudinal and lateral forces using the theorical slip.
+    :param k: Longitudinal slip (%).
+    :param alpha: Slip angle (degrees).
+    :param B, C, D, E: Tyre model coefficients.
+    :return: Longitudinal force (Fx), lateral force (Fy).
+    Eq (24) pag. 2.201, Egbert Bakker, Lars Nyborg and Hans B. Pacejka, 
+    "Tyre Modelling for Use in Vehicle Dynamics Studies", SAE Transactions , 1987, 
+    Vol. 96, Section 2 (1987), pp. 190-204, 1987
+    """
+    sigma_x = -k / (1 + k)
+    sigma_y = -np.tan(alpha*np.pi/180) / (1 + k)
+    sigma = np.sqrt(sigma_x**2 + sigma_y**2)
+    f_y0 = side_force(fz)
+    fy = -(sigma_y/sigma)*mu*f_y0
+    return fy
+
+# Load tyre coefficients from CSV file
+coefficients = pd.read_csv(r".\tyre_coefficients.csv")
+
+# Vehicle and tyre parameters
+load = (args.vehicle_mass * g)/4000
+mu = args.friction
+G_CAMBER = 0
+
+# Simulation parameters
+kappa = np.linspace(0, 1, 1000)  # Longitudinal slip from 0% to 100%
+alpha = args.slip_angle  # slip angles in degrees
+
+# Extract coefficients for tyre formula from the CSV file
+# Table 2 & 3, pag. 2.195, Egbert Bakker, Lars Nyborg and Hans B. Pacejka,
+# "Tyre Modelling for Use in Vehicle Dynamics Studies", SAE Transactions , 1987,
+# Vol. 96, Section 2 (1987), pp. 190-204, 1987
+a_1_fy = coefficients["a1"].iloc[0]
+a_2_fy = coefficients["a2"].iloc[0]
+a_3_fy = coefficients["a3"].iloc[0]
+a_4_fy = coefficients["a4"].iloc[0]
+a_5_fy = coefficients["a5"].iloc[0]
+a_6_fy = coefficients["a6"].iloc[0]
+a_7_fy = coefficients["a7"].iloc[0]
+a_8_fy = coefficients["a8"].iloc[0]
+a_9_fy = coefficients["a9"].iloc[0]
+a_10_fy = coefficients["a10"].iloc[0]
+a_11_fy = coefficients["a11"].iloc[0]
+a_12_fy = coefficients["a12"].iloc[0]
+a_13_fy = coefficients["a13"].iloc[0]
+
+a_1_fx = coefficients["a1"].iloc[2]
+a_2_fx = coefficients["a2"].iloc[2]
+a_3_fx = coefficients["a3"].iloc[2]
+a_4_fx = coefficients["a4"].iloc[2]
+a_5_fx = coefficients["a5"].iloc[2]
+a_6_fx = coefficients["a6"].iloc[2]
+a_7_fx = coefficients["a7"].iloc[2]
+a_8_fx = coefficients["a8"].iloc[2]
+
+# Plotting
+plt.figure(figsize=(12, 6))
+
+plt.plot(kappa*100,calculate_fy(kappa,load),\
+         label="Fy - "+str(((load*1000)))+" N")
+plt.plot(kappa*100,calculate_fx(kappa,load),\
+         label="Fx - "+str(((load*1000)))+" N")
+
+plt.title("Side and Brake Forces vs Longitudinal Slip"+"\n"+ \
+           " Slip Angle =" + str(alpha)+"°"\
+              + "   Friction Coeficient =" + str(mu) )
+plt.xlabel("Longitudinal Slip (%)")
+plt.ylabel("Force (N)")
+plt.legend(loc="best")
+plt.grid(True)
+
+plt.savefig(str(args.output_file))
+
+plt.show()
