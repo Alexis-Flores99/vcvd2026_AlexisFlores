@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.constants import g
 
-from S2610787012 import G_CAMBER  # Gravitational constant
+from s2610787012 import G_CAMBER  # Gravitational constant
 
 parser = argparse.ArgumentParser(description="Simulate and  plot tyre forces.")
 parser.add_argument("--weight", type=float, default=1500, help="weight in kg")
